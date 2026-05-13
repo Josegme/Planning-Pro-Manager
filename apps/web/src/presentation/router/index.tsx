@@ -5,6 +5,7 @@ import { EventosPage } from '../pages/eventos/EventosPage'
 import { NuevoEventoPage } from '../pages/eventos/NuevoEventoPage'
 import { EventoDetailPage } from '../pages/eventos/EventoDetailPage'
 import { InvitadosPage } from '../pages/invitados/InvitadosPage'
+import { MesasPage } from '../pages/mesas/MesasPage'
 import { RsvpPage } from '../pages/rsvp/RsvpPage'
 
 function AuthCallbackPage() {
@@ -92,6 +93,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
         <InvitadosPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/mesas',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        <MesasPage />
       </ProtectedRoute>
     ),
   },
