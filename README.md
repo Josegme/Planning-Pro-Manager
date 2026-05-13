@@ -68,10 +68,10 @@ planning-pro-manager/
 
 | # | Módulo | Estado |
 |---|--------|--------|
-| M0 | Plataforma SaaS — auth, multitenancy, PWA, roles | ⬜ Pendiente |
-| M1 | Gestión de Eventos | ⬜ Pendiente |
-| M2 | Gestión de Invitados | ⬜ Pendiente |
-| M3 | RSVP y Sistema QR | ⬜ Pendiente |
+| M0 | Plataforma SaaS — auth, multitenancy, PWA, roles | ✅ Completo y testeado |
+| M1 | Gestión de Eventos | ✅ Completo y testeado |
+| M2 | Gestión de Invitados | ✅ Completo y testeado |
+| M3 | RSVP y Sistema QR | ✅ Completo y testeado |
 | M4 | Gestión de Mesas | ⬜ Pendiente |
 | M5 | Plano Visual del Salón | ⬜ Pendiente |
 | M6 | Timeline del Evento | ⬜ Pendiente |

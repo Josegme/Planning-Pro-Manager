@@ -325,4 +325,5 @@ Comandos disponibles en `.claude/skills/`. Se invocan con `/nombre` en el chat.
 ## Referencias
 
 - `PLANNING_PRO_MASTER_DOC.md` — documentación completa del producto con todos los módulos, modelo de datos y decisiones técnicas
+- `design-prototype/` — prototipo clickable completo de los 11 módulos (React + Tailwind + shadcn). Cada `mod-*.jsx` es la especificación UX del correspondiente `apps/web/src/presentation/pages/`. Abrir `design-prototype/Planning Pro.standalone.html` en el browser para navegar.
 - Planning Manager Desktop — repositorio de referencia del sistema original (dominio validado)
