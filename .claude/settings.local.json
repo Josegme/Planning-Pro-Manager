@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Equipo120424M\\\\Desktop\\\\Planning_Pro_Manager\\\\.claude\\\\agents\")",
+      "Bash(mkdir -p \"C:\\\\Equipo120424M\\\\Desktop\\\\Planning_Pro_Manager\\\\.claude\\\\skills\")",
+      "Bash(mv \"20260509_001_extensions.sql\"           \"20260509000001_extensions.sql\")",
+      "Bash(mv \"20260509_002_organizations_users.sql\"  \"20260509000002_organizations_users.sql\")",
+      "Bash(mv \"20260509_003_org_resources.sql\"        \"20260509000003_org_resources.sql\")",
+      "Bash(mv \"20260509_004_eventos.sql\"              \"20260509000004_eventos.sql\")",
+      "Bash(mv \"20260509_005_invitados_mesas.sql\"      \"20260509000005_invitados_mesas.sql\")",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(kill %1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@planning-pro/shared-types",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "echo \"No lint in shared-types\""
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
