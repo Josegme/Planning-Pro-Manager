@@ -6,6 +6,8 @@ import { NuevoEventoPage } from '../pages/eventos/NuevoEventoPage'
 import { EventoDetailPage } from '../pages/eventos/EventoDetailPage'
 import { InvitadosPage } from '../pages/invitados/InvitadosPage'
 import { MesasPage } from '../pages/mesas/MesasPage'
+import { PlanoPage } from '../pages/plano/PlanoPage'
+import { TimelinePage } from '../pages/timeline/TimelinePage'
 import { RsvpPage } from '../pages/rsvp/RsvpPage'
 
 function AuthCallbackPage() {
@@ -101,6 +103,22 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
         <MesasPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/plano',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        <PlanoPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/timeline',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        <TimelinePage />
       </ProtectedRoute>
     ),
   },

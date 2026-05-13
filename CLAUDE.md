@@ -144,9 +144,9 @@ El QR se genera ÚNICAMENTE cuando el invitado confirma asistencia via formulari
 | M1 | Gestión de Eventos | ✅ Completo y testeado |
 | M2 | Gestión de Invitados | ✅ Completo y testeado |
 | M3 | RSVP y Sistema QR | ✅ Completo y testeado |
-| M4 | Gestión de Mesas | 🟡 En desarrollo |
-| M5 | Plano Visual del Salón | ⬜ Pendiente |
-| M6 | Timeline del Evento | ⬜ Pendiente |
+| M4 | Gestión de Mesas | ✅ Completo y testeado |
+| M5 | Plano Visual del Salón | ✅ Completo y testeado |
+| M6 | Timeline del Evento | ✅ Completo y testeado |
 | M7 | Servicios y Proveedores | ⬜ Pendiente |
 | M8 | Checklist de Servicios | ⬜ Pendiente |
 | M9 | Comanda del Chef | ⬜ Pendiente |
