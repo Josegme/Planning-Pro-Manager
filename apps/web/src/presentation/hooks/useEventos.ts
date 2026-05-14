@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useEventoStore } from '../stores/eventoStore'
 import { SupabaseEventoRepository } from '../../infrastructure/supabase/SupabaseEventoRepository'
 import { GetEventosUseCase } from '../../core/application/evento/GetEventosUseCase'
+import { GetEventoByIdUseCase } from '../../core/application/evento/GetEventoByIdUseCase'
 import { CreateEventoUseCase } from '../../core/application/evento/CreateEventoUseCase'
 import { UpdateEventoUseCase } from '../../core/application/evento/UpdateEventoUseCase'
 import { DeleteEventoUseCase } from '../../core/application/evento/DeleteEventoUseCase'
@@ -11,6 +12,7 @@ import type { CreateEventoData, UpdateEventoData } from '../../core/ports/IEvent
 
 const repo = new SupabaseEventoRepository()
 const getEventos = new GetEventosUseCase(repo)
+const getEventoById = new GetEventoByIdUseCase(repo)
 const createEvento = new CreateEventoUseCase(repo)
 const updateEvento = new UpdateEventoUseCase(repo)
 const deleteEvento = new DeleteEventoUseCase(repo)
@@ -72,6 +74,9 @@ export function useEventos() {
       const e = await publishEvento.execute(id)
       upsertEvento(e)
       return e
+    },
+    fetchById: async (id: string) => {
+      return getEventoById.execute(id)
     },
   }
 }

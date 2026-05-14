@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../../infrastructure/supabase/client'
 import { SupabaseInvitadoRepository } from '../../infrastructure/supabase/SupabaseInvitadoRepository'
+import { useAuth } from '../providers/AuthProvider'
 import { CheckInByTokenUseCase } from '../../core/application/invitado/CheckInByTokenUseCase'
 import { CheckInManualUseCase } from '../../core/application/invitado/CheckInManualUseCase'
 import { GetInvitadosByEventoUseCase } from '../../core/application/invitado/GetInvitadosByEventoUseCase'
@@ -28,6 +29,7 @@ export interface CheckinStats {
 }
 
 export function useCheckin(eventoId: string) {
+  const { user, orgId } = useAuth()
   const [invitados, setInvitados] = useState<Invitado[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -96,7 +98,7 @@ export function useCheckin(eventoId: string) {
     token: string,
     acompanantesPresentes?: number,
   ): Promise<CheckInByTokenResult | CheckInByTokenFailure> {
-    return checkInByTokenUC.execute(eventoId, token, acompanantesPresentes)
+    return checkInByTokenUC.execute(eventoId, orgId ?? '', token, acompanantesPresentes, user?.id)
   }
 
   async function checkInManual(

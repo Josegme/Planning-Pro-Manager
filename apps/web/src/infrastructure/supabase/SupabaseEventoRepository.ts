@@ -78,6 +78,19 @@ export class SupabaseEventoRepository implements IEventoRepository {
     if (error) throw error
   }
 
+  async getAssignedToUser(userId: string, role?: string): Promise<{ id: string; name: string } | null> {
+    let query = supabase
+      .from('event_users')
+      .select('evento_id, eventos(id, name)')
+      .eq('user_id', userId)
+    if (role) query = query.eq('role', role)
+    const { data } = await query.limit(1).maybeSingle()
+    if (!data) return null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ev = data.eventos as any
+    return ev ? { id: ev.id, name: ev.name } : null
+  }
+
   async generateRsvpSlug(name: string, date: string): Promise<string> {
     const base = name
       .toLowerCase()

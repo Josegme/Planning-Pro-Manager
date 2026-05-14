@@ -34,6 +34,13 @@ export interface ImportResult {
   errors: Array<{ row: number; message: string }>
 }
 
+export type CheckinAuditResult =
+  | 'success'
+  | 'already_checked_in'
+  | 'token_not_found'
+  | 'not_confirmed'
+  | 'not_found'
+
 export interface IInvitadoRepository {
   findByEvento(eventoId: string): Promise<Invitado[]>
   findById(id: string): Promise<Invitado | null>
@@ -44,5 +51,12 @@ export interface IInvitadoRepository {
   delete(id: string): Promise<void>
   importBatch(rows: CreateInvitadoData[]): Promise<ImportResult>
   generateQrToken(id: string): Promise<Invitado>
-  checkIn(id: string, acompanantesPresentes?: number): Promise<Invitado>
+  checkIn(id: string, acompanantesPresentes?: number, scannedBy?: string): Promise<Invitado>
+  logCheckinAttempt(
+    eventoId: string,
+    orgId: string,
+    result: CheckinAuditResult,
+    invitadoId?: string,
+    scannedBy?: string,
+  ): Promise<void>
 }

@@ -10,6 +10,7 @@ interface AuthContextValue {
   role: Role | null
   orgId: string | null
   isLoading: boolean
+  profileError: boolean
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextValue>({
   role: null,
   orgId: null,
   isLoading: true,
+  profileError: false,
 })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -25,12 +27,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<Role | null>(null)
   const [orgId, setOrgId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [profileError, setProfileError] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      if (session) {
-        loadUserProfile(session.user.id)
+    // B-2: getUser() verifica el token en el servidor (no solo el storage local)
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          setSession(session)
+          loadUserProfile(user.id)
+        })
       } else {
         setIsLoading(false)
       }
@@ -43,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setRole(null)
         setOrgId(null)
+        setProfileError(false)
         setIsLoading(false)
       }
     })
@@ -52,23 +59,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loadUserProfile(userId: string) {
     try {
-      const { data } = await supabase
+      setProfileError(false)
+      const { data, error } = await supabase
         .from('users')
         .select('role, org_id')
         .eq('id', userId)
         .single()
 
-      if (data) {
-        setRole(data.role as Role)
-        setOrgId(data.org_id)
+      if (error || !data) {
+        // A-3: si falla la carga del perfil, marcamos error y forzamos sign-out
+        setProfileError(true)
+        await supabase.auth.signOut()
+        return
       }
+      setRole(data.role as Role)
+      setOrgId(data.org_id)
+    } catch {
+      setProfileError(true)
+      await supabase.auth.signOut()
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, role, orgId, isLoading }}>
+    <AuthContext.Provider value={{ session, user: session?.user ?? null, role, orgId, isLoading, profileError }}>
       {children}
     </AuthContext.Provider>
   )

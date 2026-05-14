@@ -10,7 +10,7 @@ import {
 import { useComanda } from '../../hooks/useComanda'
 import { useAuth } from '../../providers/AuthProvider'
 import { useEventoStore } from '../../stores/eventoStore'
-import { supabase } from '../../../infrastructure/supabase/client'
+import { useAssignedEvento } from '../../hooks/useAssignedEvento'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card'
@@ -104,33 +104,13 @@ function CourseDialog({
 
 export function ComandaPage() {
   const { eventoId: paramId } = useParams<{ eventoId?: string }>()
-  const { user, role } = useAuth()
+  const { role } = useAuth()
   const eventoFromStore = useEventoStore((s) => paramId ? s.eventos.find((e) => e.id === paramId) : undefined)
 
-  const [resolvedId, setResolvedId] = useState(paramId ?? '')
-  const [eventoNombre, setEventoNombre] = useState(eventoFromStore?.name ?? null)
-
-  // Chef: resolve assigned event from event_users
-  useEffect(() => {
-    if (paramId || !user) return
-    supabase
-      .from('event_users')
-      .select('evento_id, eventos(name)')
-      .eq('user_id', user.id)
-      .eq('role', 'chef')
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!data) return
-        setResolvedId(data.evento_id as string)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setEventoNombre((data.eventos as any)?.name ?? null)
-      })
-  }, [paramId, user])
-
-  useEffect(() => {
-    if (eventoFromStore?.name) setEventoNombre(eventoFromStore.name)
-  }, [eventoFromStore])
+  // A-2: resolución del evento via hook, sin acceso directo a Supabase
+  const { eventoId: assignedId, eventoName: assignedName } = useAssignedEvento('chef', !!paramId)
+  const resolvedId   = paramId ?? assignedId ?? ''
+  const eventoNombre = eventoFromStore?.name ?? assignedName
 
   const {
     courses, dietary, dietaryLabels, standardCount, miseEnPlace,

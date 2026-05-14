@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { session, role, isLoading } = useAuth()
+  const { session, role, isLoading, profileError } = useAuth()
 
   if (isLoading) {
     return (
@@ -22,7 +22,13 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   if (!session) return <Navigate to="/login" replace />
 
-  if (allowedRoles && role && !allowedRoles.includes(role)) {
+  // A-3: si el perfil falló, AuthProvider ya hizo sign-out → redirige a login
+  if (profileError) return <Navigate to="/login" replace />
+
+  // A-3: session existe pero role es null (estado inesperado) → redirige a login
+  if (!role) return <Navigate to="/login" replace />
+
+  if (allowedRoles && !allowedRoles.includes(role)) {
     return <Navigate to={roleHomePath(role)} replace />
   }
 

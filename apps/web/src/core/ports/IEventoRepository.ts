@@ -36,4 +36,5 @@ export interface IEventoRepository {
   update(id: string, data: UpdateEventoData): Promise<Evento>
   delete(id: string): Promise<void>
   generateRsvpSlug(name: string, date: string): Promise<string>
+  getAssignedToUser(userId: string, role?: string): Promise<{ id: string; name: string } | null>
 }

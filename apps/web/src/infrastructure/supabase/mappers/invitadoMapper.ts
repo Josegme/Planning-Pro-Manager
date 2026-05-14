@@ -18,7 +18,7 @@ export function toInvitado(raw: any): Invitado {
     dietaryRestrictions: raw.dietary_restrictions ?? [],
     status: raw.status as InvitadoStatus,
     rsvpToken: raw.rsvp_token ?? null,
-    qrToken: raw.qr_token ?? null,
+    qrToken: raw.qr_token_hash ?? null,
     qrUsedAt: raw.qr_used_at ?? null,
     checkinAt: raw.checkin_at ?? null,
     createdAt: raw.created_at,

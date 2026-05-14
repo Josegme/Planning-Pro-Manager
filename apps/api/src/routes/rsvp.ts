@@ -1,8 +1,10 @@
+import { createHash } from 'node:crypto'
 import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { supabaseAdmin } from '../infrastructure/supabaseAdmin'
 import { sendQrEmail } from '../services/emailService'
+import { rsvpGetLimiter, rsvpSubmitLimiter, rsvpResendLimiter } from '../middleware/rateLimiter'
 
 export const rsvpRoutes = new Hono()
 
@@ -12,6 +14,11 @@ function generateToken(): string {
   const array = new Uint8Array(24)
   crypto.getRandomValues(array)
   return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+// C-2: tokens se almacenan como SHA-256; nunca el valor crudo
+function hashToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex')
 }
 
 async function getEventoBySlug(slug: string) {
@@ -36,7 +43,7 @@ async function countConfirmados(eventoId: string): Promise<number> {
 
 // ── GET /rsvp/:slug ───────────────────────────────────────────────────────────
 
-rsvpRoutes.get('/:slug', async (c) => {
+rsvpRoutes.get('/:slug', rsvpGetLimiter, async (c) => {
   try {
     const slug = c.req.param('slug')
     const evento = await getEventoBySlug(slug)
@@ -49,6 +56,7 @@ rsvpRoutes.get('/:slug', async (c) => {
     const confirmados = await countConfirmados(evento.id)
     const isFull = confirmados >= evento.capacity
 
+    // M-2: no exponer capacity ni confirmados exactos al público
     return c.json({
       slug,
       name:           evento.name,
@@ -60,8 +68,6 @@ rsvpRoutes.get('/:slug', async (c) => {
       bannerUrl:      evento.rsvp_banner_url,
       fields:         evento.rsvp_fields ?? [],
       isFull,
-      capacity:       evento.capacity,
-      confirmados,
     })
   } catch (e) {
     console.error('[GET /rsvp/:slug]', e)
@@ -81,7 +87,7 @@ const submissionSchema = z.object({
   dietaryRestrictions:  z.array(z.string().max(50)).default([]),
 })
 
-rsvpRoutes.post('/:slug', zValidator('json', submissionSchema), async (c) => {
+rsvpRoutes.post('/:slug', rsvpSubmitLimiter, zValidator('json', submissionSchema), async (c) => {
   try {
     const slug = c.req.param('slug')
     const body = c.req.valid('json')
@@ -110,16 +116,16 @@ rsvpRoutes.post('/:slug', zValidator('json', submissionSchema), async (c) => {
       }
     }
 
-    // Get org_id for the invitado record
     const { data: eventoFull } = await supabaseAdmin
       .from('eventos')
       .select('org_id')
       .eq('id', evento.id)
       .single()
 
+    // C-2: generar token crudo (solo vive en el QR), almacenar su hash
     const qrToken = generateToken()
+    const qrTokenHash = hashToken(qrToken)
 
-    // Insert invitado
     const { data: invitado, error: insertError } = await supabaseAdmin
       .from('invitados')
       .insert({
@@ -133,7 +139,7 @@ rsvpRoutes.post('/:slug', zValidator('json', submissionSchema), async (c) => {
         acompanantes_esperados: body.acompanantesEsperados,
         dietary_restrictions:   body.dietaryRestrictions,
         status:                 'confirmado',
-        qr_token:               qrToken,
+        qr_token_hash:          qrTokenHash,
       })
       .select('id')
       .single()
@@ -143,10 +149,8 @@ rsvpRoutes.post('/:slug', zValidator('json', submissionSchema), async (c) => {
       return c.json({ error: 'Error al registrar la asistencia' }, 500)
     }
 
-    // Now build the definitive QR value with real invitado ID
     const finalQrValue = `EVT-${evento.id}:INV-${invitado.id}:TOKEN-${qrToken}`
 
-    // Send email (non-blocking — fire and forget, log errors)
     if (body.email) {
       sendQrEmail({
         to:                  body.email,
@@ -161,11 +165,11 @@ rsvpRoutes.post('/:slug', zValidator('json', submissionSchema), async (c) => {
       }).catch((err) => console.error('[sendQrEmail]', err))
     }
 
+    // C-3: no devolver qrToken crudo al cliente — solo el valor compuesto para renderizar
     return c.json({
       invitadoId: invitado.id,
       nombre:     body.nombre,
       apellido:   body.apellido,
-      qrToken,
       qrValue:    finalQrValue,
     }, 201)
   } catch (e) {
@@ -181,7 +185,7 @@ const resendSchema = z.object({
   email: z.string().email(),
 })
 
-rsvpRoutes.post('/:slug/resend', zValidator('json', resendSchema), async (c) => {
+rsvpRoutes.post('/:slug/resend', rsvpResendLimiter, zValidator('json', resendSchema), async (c) => {
   try {
     const slug = c.req.param('slug')
     const { dni, email } = c.req.valid('json')
@@ -191,17 +195,26 @@ rsvpRoutes.post('/:slug/resend', zValidator('json', resendSchema), async (c) => 
 
     const { data: invitado } = await supabaseAdmin
       .from('invitados')
-      .select('id, nombre, apellido, qr_token, status')
+      .select('id, nombre, apellido, status')
       .eq('evento_id', evento.id)
       .eq('dni', dni)
       .eq('email', email)
       .maybeSingle()
 
-    if (!invitado || !invitado.qr_token) {
+    if (!invitado) {
       return c.json({ error: 'No se encontró una confirmación con esos datos' }, 404)
     }
 
-    const qrValue = `EVT-${evento.id}:INV-${invitado.id}:TOKEN-${invitado.qr_token}`
+    // C-2: no podemos reconstruir el token desde el hash — generamos uno nuevo
+    const newToken = generateToken()
+    const newTokenHash = hashToken(newToken)
+
+    await supabaseAdmin
+      .from('invitados')
+      .update({ qr_token_hash: newTokenHash })
+      .eq('id', invitado.id)
+
+    const qrValue = `EVT-${evento.id}:INV-${invitado.id}:TOKEN-${newToken}`
 
     await sendQrEmail({
       to:                  email,
@@ -215,7 +228,7 @@ rsvpRoutes.post('/:slug/resend', zValidator('json', resendSchema), async (c) => 
       qrValue,
     })
 
-    return c.json({ message: 'QR reenviado correctamente' })
+    return c.json({ message: 'QR regenerado y reenviado correctamente' })
   } catch (e) {
     console.error('[POST /rsvp/:slug/resend]', e)
     return c.json({ error: 'Error al reenviar el QR' }, 500)

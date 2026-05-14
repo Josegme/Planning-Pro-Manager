@@ -6,7 +6,14 @@ import type {
   CreateInvitadoData,
   UpdateInvitadoData,
   ImportResult,
+  CheckinAuditResult,
 } from '../../core/ports/IInvitadoRepository'
+
+async function sha256(value: string): Promise<string> {
+  const data = new TextEncoder().encode(value)
+  const buf  = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('')
+}
 
 const TABLE = 'invitados'
 
@@ -28,7 +35,8 @@ function toRow(data: CreateInvitadoData | UpdateInvitadoData): Record<string, un
   if ('mesaId' in data) row.mesa_id = (data as UpdateInvitadoData).mesaId
   if ('status' in data && (data as UpdateInvitadoData).status !== undefined)
     row.status = (data as UpdateInvitadoData).status
-  if ('qrToken' in data) row.qr_token = (data as UpdateInvitadoData).qrToken
+  // qrToken en UpdateInvitadoData es el hash — la columna de DB se llama qr_token_hash
+  if ('qrToken' in data) row.qr_token_hash = (data as UpdateInvitadoData).qrToken
   if ('checkinAt' in data) row.checkin_at = (data as UpdateInvitadoData).checkinAt
   return row
 }
@@ -105,10 +113,11 @@ export class SupabaseInvitadoRepository implements IInvitadoRepository {
     const array = new Uint8Array(24)
     crypto.getRandomValues(array)
     const token = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('')
+    const tokenHash = await sha256(token)
 
     const { data, error } = await supabase
       .from(TABLE)
-      .update({ qr_token: token, status: 'confirmado' })
+      .update({ qr_token_hash: tokenHash, status: 'confirmado' })
       .eq('id', id)
       .select()
       .single()
@@ -117,17 +126,18 @@ export class SupabaseInvitadoRepository implements IInvitadoRepository {
   }
 
   async findByQrToken(eventoId: string, token: string): Promise<Invitado | null> {
+    const tokenHash = await sha256(token)
     const { data, error } = await supabase
       .from(TABLE)
       .select('*')
       .eq('evento_id', eventoId)
-      .eq('qr_token', token)
+      .eq('qr_token_hash', tokenHash)
       .maybeSingle()
     if (error) throw error
     return data ? toInvitado(data) : null
   }
 
-  async checkIn(id: string, acompanantesPresentes?: number): Promise<Invitado> {
+  async checkIn(id: string, acompanantesPresentes?: number, scannedBy?: string): Promise<Invitado> {
     const now = new Date().toISOString()
     const patch: Record<string, unknown> = {
       status: 'checkin',
@@ -144,6 +154,36 @@ export class SupabaseInvitadoRepository implements IInvitadoRepository {
       .select()
       .single()
     if (error) throw error
-    return toInvitado(data)
+    const inv = toInvitado(data)
+
+    // A-5: audit log — fire-and-forget
+    supabase.from('checkin_audit_log').insert({
+      evento_id:   inv.eventoId,
+      org_id:      inv.orgId,
+      invitado_id: id,
+      scanned_by:  scannedBy ?? null,
+      result:      'success',
+    }).then(({ error: logErr }) => {
+      if (logErr) console.error('[checkin_audit_log success]', logErr)
+    })
+
+    return inv
+  }
+
+  async logCheckinAttempt(
+    eventoId: string,
+    orgId: string,
+    result: CheckinAuditResult,
+    invitadoId?: string,
+    scannedBy?: string,
+  ): Promise<void> {
+    const { error } = await supabase.from('checkin_audit_log').insert({
+      evento_id:   eventoId,
+      org_id:      orgId,
+      invitado_id: invitadoId ?? null,
+      scanned_by:  scannedBy ?? null,
+      result,
+    })
+    if (error) console.error('[checkin_audit_log failure]', error)
   }
 }

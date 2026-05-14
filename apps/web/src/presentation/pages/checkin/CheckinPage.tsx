@@ -1,13 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Html5Qrcode } from 'html5-qrcode'
 import { QrCode, Search, CheckCircle2, XCircle, AlertTriangle, Wifi, Users } from 'lucide-react'
 import { useCheckin } from '../../hooks/useCheckin'
 import type { CheckinStats } from '../../hooks/useCheckin'
-import { useAuth } from '../../providers/AuthProvider'
 import { useEventoStore } from '../../stores/eventoStore'
-import { supabase } from '../../../infrastructure/supabase/client'
-import { SupabaseMesaRepository } from '../../../infrastructure/supabase/SupabaseMesaRepository'
+import { useAssignedEvento } from '../../hooks/useAssignedEvento'
+import { useMesas } from '../../hooks/useMesas'
 import { Badge } from '../../components/ui/Badge'
 import { cn } from '@/lib/utils'
 import type { Mesa } from '../../../core/domain/mesa/Mesa'
@@ -21,8 +20,6 @@ import type {
   CheckInManualResult,
   CheckInManualFailure,
 } from '../../../core/application/invitado/CheckInManualUseCase'
-
-const mesaRepo = new SupabaseMesaRepository()
 
 type CheckinResult =
   | { kind: 'success'; invitado: Invitado; mesa: Mesa | null; time: string }
@@ -215,46 +212,25 @@ function ActivityFeed({
 
 export function CheckinPage() {
   const { eventoId: paramId } = useParams<{ eventoId?: string }>()
-  const { user } = useAuth()
   const eventoFromStore = useEventoStore((s) =>
     paramId ? s.eventos.find((e) => e.id === paramId) : undefined,
   )
 
-  const [resolvedId, setResolvedId] = useState(paramId ?? '')
-  const [eventoNombre, setEventoNombre] = useState(eventoFromStore?.name ?? null)
-  const [mesasMap, setMesasMap] = useState<Record<string, Mesa>>({})
+  // A-2: resolución del evento via hook, sin acceso directo a Supabase
+  const { eventoId: assignedId, eventoName: assignedName } = useAssignedEvento(
+    'recepcion',
+    !!paramId,
+  )
+  const resolvedId  = paramId ?? assignedId ?? ''
+  const eventoNombre = eventoFromStore?.name ?? assignedName
 
-  // Recepción: resolve their assigned event from event_users
-  useEffect(() => {
-    if (paramId || !user) return
-    supabase
-      .from('event_users')
-      .select('evento_id, eventos(name)')
-      .eq('user_id', user.id)
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!data) return
-        setResolvedId(data.evento_id as string)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setEventoNombre((data.eventos as any)?.name ?? null)
-      })
-  }, [paramId, user])
-
-  // Sync evento name from store (for organizador)
-  useEffect(() => {
-    if (eventoFromStore?.name) setEventoNombre(eventoFromStore.name)
-  }, [eventoFromStore])
-
-  // Load mesas once eventoId is known
-  useEffect(() => {
-    if (!resolvedId) return
-    mesaRepo.findByEvento(resolvedId).then((list) => {
-      const map: Record<string, Mesa> = {}
-      list.forEach((m) => { map[m.id] = m })
-      setMesasMap(map)
-    })
-  }, [resolvedId])
+  // A-2: mesas via hook (Realtime incluido)
+  const { mesas } = useMesas(resolvedId)
+  const mesasMap = useMemo(() => {
+    const map: Record<string, Mesa> = {}
+    mesas.forEach((m) => { map[m.id] = m })
+    return map
+  }, [mesas])
 
   const { stats, recentCheckins, isLoading, checkInByToken, checkInManual, searchInvitados } =
     useCheckin(resolvedId)

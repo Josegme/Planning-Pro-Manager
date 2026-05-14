@@ -3,8 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, Share2, Trash2, Settings2 } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { SupabaseEventoRepository } from '../../../infrastructure/supabase/SupabaseEventoRepository'
-import { GetEventoByIdUseCase } from '../../../core/application/evento/GetEventoByIdUseCase'
 import { useEventos } from '../../hooks/useEventos'
 import { EventoStatusBadge } from '../../components/eventos/EventoStatusBadge'
 import { RsvpConfigForm } from '../../components/eventos/RsvpConfigForm'
@@ -15,13 +13,10 @@ import { Dialog } from '../../components/ui/Dialog'
 import type { Evento } from '../../../core/domain/evento/Evento'
 import { EVENTO_TYPE_LABEL, isPublishable, isEditable } from '../../../core/domain/evento/Evento'
 
-const repo = new SupabaseEventoRepository()
-const getEventoById = new GetEventoByIdUseCase(repo)
-
 export function EventoDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { publish, remove } = useEventos()
+  const { publish, remove, fetchById } = useEventos()
   const [evento, setEvento] = useState<Evento | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +26,7 @@ export function EventoDetailPage() {
   useEffect(() => {
     if (!id) return
     setIsLoading(true)
-    getEventoById.execute(id)
+    fetchById(id)
       .then(setEvento)
       .catch((e) => setError(e instanceof Error ? e.message : 'Error al cargar el evento'))
       .finally(() => setIsLoading(false))

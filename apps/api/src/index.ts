@@ -4,6 +4,15 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { rsvpRoutes } from './routes/rsvp'
 
+// C-1: Advertir si dev usa credenciales de producción sin NODE_ENV=production
+if (process.env.NODE_ENV !== 'production' && process.env.SUPABASE_URL?.includes('supabase.co')) {
+  console.warn(
+    '[SECURITY WARNING] Estás usando credenciales de Supabase en modo dev.\n' +
+    'Asegurate de usar un proyecto separado para desarrollo/staging.\n' +
+    'Referencia: PLANNING_PRO_MASTER_DOC.md → Fase 6 → Separación de entornos',
+  )
+}
+
 const app = new Hono()
 
 const allowedOrigins = [
@@ -13,9 +22,10 @@ const allowedOrigins = [
 
 app.use('*', logger())
 
+// M-5: CORS solo permite GET y POST (los únicos métodos usados en la API actual)
 app.use('*', cors({
   origin: allowedOrigins,
-  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowMethods: ['GET', 'POST'],
   allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }))
