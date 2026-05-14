@@ -1,31 +1,35 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { useAuth } from '../providers/AuthProvider'
 import { ProtectedRoute, roleHomePath } from './ProtectedRoute'
-import { EventosPage } from '../pages/eventos/EventosPage'
-import { NuevoEventoPage } from '../pages/eventos/NuevoEventoPage'
-import { EventoDetailPage } from '../pages/eventos/EventoDetailPage'
-import { InvitadosPage } from '../pages/invitados/InvitadosPage'
-import { MesasPage } from '../pages/mesas/MesasPage'
-import { PlanoPage } from '../pages/plano/PlanoPage'
-import { TimelinePage } from '../pages/timeline/TimelinePage'
-import { RsvpPage } from '../pages/rsvp/RsvpPage'
-import { CheckinPage } from '../pages/checkin/CheckinPage'
-import { ServiciosPage } from '../pages/servicios/ServiciosPage'
-import { ChecklistPage } from '../pages/checklist/ChecklistPage'
-import { ComandaPage } from '../pages/comanda/ComandaPage'
-import { ReportesPage } from '../pages/reportes/ReportesPage'
+
+// Lazy-loaded pages — each route chunk loads on first navigation
+const EventosPage      = lazy(() => import('../pages/eventos/EventosPage').then((m) => ({ default: m.EventosPage })))
+const NuevoEventoPage  = lazy(() => import('../pages/eventos/NuevoEventoPage').then((m) => ({ default: m.NuevoEventoPage })))
+const EventoDetailPage = lazy(() => import('../pages/eventos/EventoDetailPage').then((m) => ({ default: m.EventoDetailPage })))
+const InvitadosPage    = lazy(() => import('../pages/invitados/InvitadosPage').then((m) => ({ default: m.InvitadosPage })))
+const MesasPage        = lazy(() => import('../pages/mesas/MesasPage').then((m) => ({ default: m.MesasPage })))
+const PlanoPage        = lazy(() => import('../pages/plano/PlanoPage').then((m) => ({ default: m.PlanoPage })))
+const TimelinePage     = lazy(() => import('../pages/timeline/TimelinePage').then((m) => ({ default: m.TimelinePage })))
+const RsvpPage         = lazy(() => import('../pages/rsvp/RsvpPage').then((m) => ({ default: m.RsvpPage })))
+const CheckinPage      = lazy(() => import('../pages/checkin/CheckinPage').then((m) => ({ default: m.CheckinPage })))
+const ServiciosPage    = lazy(() => import('../pages/servicios/ServiciosPage').then((m) => ({ default: m.ServiciosPage })))
+const ChecklistPage    = lazy(() => import('../pages/checklist/ChecklistPage').then((m) => ({ default: m.ChecklistPage })))
+const ComandaPage      = lazy(() => import('../pages/comanda/ComandaPage').then((m) => ({ default: m.ComandaPage })))
+const ReportesPage     = lazy(() => import('../pages/reportes/ReportesPage').then((m) => ({ default: m.ReportesPage })))
+const MockPaymentPage  = lazy(() => import('../pages/payment/MockPaymentPage').then((m) => ({ default: m.MockPaymentPage })))
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+    </div>
+  )
+}
 
 function AuthCallbackPage() {
   const { role, isLoading } = useAuth()
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-sm text-slate-400">Verificando sesión...</p>
-      </div>
-    )
-  }
-
+  if (isLoading) return <PageLoader />
   return <Navigate to={role ? roleHomePath(role) : '/login'} replace />
 }
 
@@ -40,11 +44,16 @@ function LoginPage() {
   )
 }
 
+function withSuspense(element: React.ReactNode) {
+  return <Suspense fallback={<PageLoader />}>{element}</Suspense>
+}
+
 const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
-  { path: '/auth/callback', element: <AuthCallbackPage /> },
-  { path: '/', element: <AuthCallbackPage /> },
-  { path: '/rsvp/:slug', element: <RsvpPage /> },
+  { path: '/login',          element: <LoginPage /> },
+  { path: '/auth/callback',  element: <AuthCallbackPage /> },
+  { path: '/',               element: <AuthCallbackPage /> },
+  { path: '/rsvp/:slug',     element: withSuspense(<RsvpPage />) },
+  { path: '/payment/mock',   element: withSuspense(<MockPaymentPage />) },
   {
     path: '/dashboard',
     element: (
@@ -57,7 +66,7 @@ const router = createBrowserRouter([
     path: '/eventos',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <EventosPage />
+        {withSuspense(<EventosPage />)}
       </ProtectedRoute>
     ),
   },
@@ -65,7 +74,7 @@ const router = createBrowserRouter([
     path: '/eventos/nuevo',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <NuevoEventoPage />
+        {withSuspense(<NuevoEventoPage />)}
       </ProtectedRoute>
     ),
   },
@@ -73,7 +82,7 @@ const router = createBrowserRouter([
     path: '/eventos/:id',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <EventoDetailPage />
+        {withSuspense(<EventoDetailPage />)}
       </ProtectedRoute>
     ),
   },
@@ -81,7 +90,7 @@ const router = createBrowserRouter([
     path: '/eventos/:eventoId/invitados',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <InvitadosPage />
+        {withSuspense(<InvitadosPage />)}
       </ProtectedRoute>
     ),
   },
@@ -89,7 +98,7 @@ const router = createBrowserRouter([
     path: '/eventos/:eventoId/mesas',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <MesasPage />
+        {withSuspense(<MesasPage />)}
       </ProtectedRoute>
     ),
   },
@@ -97,7 +106,7 @@ const router = createBrowserRouter([
     path: '/eventos/:eventoId/plano',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <PlanoPage />
+        {withSuspense(<PlanoPage />)}
       </ProtectedRoute>
     ),
   },
@@ -105,7 +114,7 @@ const router = createBrowserRouter([
     path: '/eventos/:eventoId/timeline',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <TimelinePage />
+        {withSuspense(<TimelinePage />)}
       </ProtectedRoute>
     ),
   },
@@ -113,23 +122,7 @@ const router = createBrowserRouter([
     path: '/checkin',
     element: (
       <ProtectedRoute allowedRoles={['recepcion']}>
-        <CheckinPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/eventos/:eventoId/servicios',
-    element: (
-      <ProtectedRoute allowedRoles={['organizador']}>
-        <ServiciosPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/eventos/:eventoId/checklist',
-    element: (
-      <ProtectedRoute allowedRoles={['organizador']}>
-        <ChecklistPage />
+        {withSuspense(<CheckinPage />)}
       </ProtectedRoute>
     ),
   },
@@ -137,7 +130,23 @@ const router = createBrowserRouter([
     path: '/eventos/:eventoId/checkin',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <CheckinPage />
+        {withSuspense(<CheckinPage />)}
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/servicios',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        {withSuspense(<ServiciosPage />)}
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/checklist',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        {withSuspense(<ChecklistPage />)}
       </ProtectedRoute>
     ),
   },
@@ -145,7 +154,7 @@ const router = createBrowserRouter([
     path: '/comanda',
     element: (
       <ProtectedRoute allowedRoles={['chef']}>
-        <ComandaPage />
+        {withSuspense(<ComandaPage />)}
       </ProtectedRoute>
     ),
   },
@@ -153,7 +162,7 @@ const router = createBrowserRouter([
     path: '/eventos/:eventoId/comanda',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <ComandaPage />
+        {withSuspense(<ComandaPage />)}
       </ProtectedRoute>
     ),
   },
@@ -161,7 +170,7 @@ const router = createBrowserRouter([
     path: '/eventos/:eventoId/reportes',
     element: (
       <ProtectedRoute allowedRoles={['organizador']}>
-        <ReportesPage />
+        {withSuspense(<ReportesPage />)}
       </ProtectedRoute>
     ),
   },

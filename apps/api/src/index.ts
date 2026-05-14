@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { rsvpRoutes } from './routes/rsvp'
+import { paymentRoutes } from './routes/payments'
 
 // C-1: Advertir si dev usa credenciales de producción sin NODE_ENV=production
 if (process.env.NODE_ENV !== 'production' && process.env.SUPABASE_URL?.includes('supabase.co')) {
@@ -35,6 +36,7 @@ app.get('/health', (c) => {
 })
 
 app.route('/rsvp', rsvpRoutes)
+app.route('/payments', paymentRoutes)
 
 const port = parseInt(process.env.PORT ?? '3001', 10)
 

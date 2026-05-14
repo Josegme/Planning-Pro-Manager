@@ -147,12 +147,18 @@ supabase stop         # Detiene Supabase local
 ## Orden de desarrollo
 
 ```
-Fase 0  Setup — monorepo + CI/CD + Supabase local + env
-Fase 1  Infraestructura — schema DB + RLS + Auth + roles + PWA shell
-Fase 2  Core — Eventos (M1) → Invitados (M2) → RSVP + QR (M3)
-Fase 3  Operación — Mesas (M4) → Plano (M5) → Timeline (M6) → Check-in (M10)
-Fase 4  Operacional — Servicios (M7) → Checklist (M8) → Comanda (M9)
-Fase 5  Cierre — Reportes (M11) → optimizaciones → deploy final
+Fase 0  Setup — monorepo + CI/CD + Supabase local + env                ✅
+Fase 1  Infraestructura — schema DB + RLS + Auth + roles + PWA shell   ✅
+Fase 2  Core — Eventos (M1) → Invitados (M2) → RSVP + QR (M3)         ✅
+Fase 3  Operación — Mesas (M4) → Plano (M5) → Timeline (M6) →
+         Check-in (M10)                                                  ✅
+Fase 4  Operacional — Servicios (M7) → Checklist (M8) → Comanda (M9)  ✅
+Fase 5  Cierre — Reportes (M11)                                         ✅
+Fase 6  Producción — Performance · Pricing · Seguridad · Onboarding   ✅ Completo
+          ├─ Security review + hardening                                 ✅
+          ├─ Lazy loading de rutas (bundle splitting)                    ✅
+          ├─ Pricing: 2 eventos gratis → Mercado Pago                    ✅
+          └─ Onboarding wizard                                           ✅
 ```
 
 Cada fase se despliega a producción y se prueba antes de avanzar a la siguiente.

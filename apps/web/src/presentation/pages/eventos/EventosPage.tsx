@@ -1,8 +1,13 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Plus, CalendarX } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useEventos } from '../../hooks/useEventos'
+import { useSubscription } from '../../hooks/useSubscription'
+import { useOnboarding } from '../../hooks/useOnboarding'
 import { EventoCard } from '../../components/eventos/EventoCard'
+import { PaywallModal } from '../../components/ui/PaywallModal'
+import { OnboardingWizard } from '../../components/onboarding/OnboardingWizard'
 
 const btnBase = cn(
   'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors',
@@ -12,6 +17,18 @@ const btnBase = cn(
 
 export function EventosPage() {
   const { eventos, isLoading, error } = useEventos()
+  const { canCreate, isLoading: subLoading } = useSubscription()
+  const { show: showOnboarding, dismiss: dismissOnboarding } = useOnboarding(eventos.length)
+  const navigate = useNavigate()
+  const [showPaywall, setShowPaywall] = useState(false)
+
+  function handleNuevoEvento() {
+    if (!canCreate) {
+      setShowPaywall(true)
+    } else {
+      navigate('/eventos/nuevo')
+    }
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -24,10 +41,14 @@ export function EventosPage() {
               : `${eventos.length} evento${eventos.length === 1 ? '' : 's'}`}
           </p>
         </div>
-        <Link to="/eventos/nuevo" className={btnBase}>
+        <button
+          onClick={handleNuevoEvento}
+          disabled={subLoading}
+          className={cn(btnBase, 'disabled:opacity-60')}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Nuevo evento
-        </Link>
+        </button>
       </div>
 
       {error && (
@@ -49,10 +70,10 @@ export function EventosPage() {
           <p className="text-sm text-muted-foreground mt-1 mb-6 max-w-sm">
             Empezá configurando el evento, luego cargá invitados y publicá el formulario RSVP.
           </p>
-          <Link to="/eventos/nuevo" className={btnBase}>
+          <button onClick={handleNuevoEvento} disabled={subLoading} className={cn(btnBase, 'disabled:opacity-60')}>
             <Plus className="h-4 w-4 mr-2" />
             Crear evento
-          </Link>
+          </button>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -61,6 +82,9 @@ export function EventosPage() {
           ))}
         </div>
       )}
+
+      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} />
+      <OnboardingWizard open={showOnboarding} onDismiss={dismissOnboarding} />
     </div>
   )
 }
