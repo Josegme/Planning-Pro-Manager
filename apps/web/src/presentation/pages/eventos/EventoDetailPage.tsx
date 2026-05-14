@@ -221,14 +221,86 @@ export function EventoDetailPage() {
           </div>
           <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
         </Link>
-        {['Mesas (M4)', 'Plano del salón (M5)', 'Timeline (M6)', 'Check-in (M10)'].map((label) => (
-          <div
-            key={label}
-            className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground text-center"
-          >
-            {label} — disponible próximamente
+        <Link
+          to={`/eventos/${evento.id}/mesas`}
+          className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors group"
+        >
+          <div>
+            <p className="text-sm font-medium">Mesas</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Configurar mesas, asignar invitados y distribución</p>
           </div>
-        ))}
+          <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
+        </Link>
+        <Link
+          to={`/eventos/${evento.id}/plano`}
+          className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors group"
+        >
+          <div>
+            <p className="text-sm font-medium">Plano del salón</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Vista visual del salón con mesas y elementos estructurales</p>
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
+        </Link>
+        <Link
+          to={`/eventos/${evento.id}/timeline`}
+          className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors group"
+        >
+          <div>
+            <p className="text-sm font-medium">Timeline</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Etapas del evento, horarios y seguimiento en tiempo real</p>
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
+        </Link>
+        <Link
+          to={`/eventos/${evento.id}/checklist`}
+          className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors group"
+        >
+          <div>
+            <p className="text-sm font-medium">Checklist de servicios</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Biblioteca de servicios por categoría con estado operacional del día</p>
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
+        </Link>
+        <Link
+          to={`/eventos/${evento.id}/servicios`}
+          className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors group"
+        >
+          <div>
+            <p className="text-sm font-medium">Servicios y proveedores</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Control financiero, estado de pagos y CRM de proveedores</p>
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
+        </Link>
+        <Link
+          to={`/eventos/${evento.id}/checkin`}
+          className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors group"
+        >
+          <div>
+            <p className="text-sm font-medium">Check-in</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Escanear QR, búsqueda manual y contador de ingresos en tiempo real</p>
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
+        </Link>
+        <Link
+          to={`/eventos/${evento.id}/comanda`}
+          className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors group"
+        >
+          <div>
+            <p className="text-sm font-medium">Comanda del chef</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Menú, cantidades por restricción dietaria y mise en place</p>
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
+        </Link>
+        <Link
+          to={`/eventos/${evento.id}/reportes`}
+          className="flex items-center justify-between rounded-lg border p-4 hover:bg-accent/50 transition-colors group"
+        >
+          <div>
+            <p className="text-sm font-medium">Reportes y analytics</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Asistencia, finanzas, mesas, timeline y resumen ejecutivo exportable</p>
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground text-sm">→</span>
+        </Link>
       </div>
 
       {/* RSVP config dialog */}

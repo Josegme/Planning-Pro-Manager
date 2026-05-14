@@ -72,14 +72,14 @@ planning-pro-manager/
 | M1 | Gestión de Eventos | ✅ Completo y testeado |
 | M2 | Gestión de Invitados | ✅ Completo y testeado |
 | M3 | RSVP y Sistema QR | ✅ Completo y testeado |
-| M4 | Gestión de Mesas | ⬜ Pendiente |
-| M5 | Plano Visual del Salón | ⬜ Pendiente |
-| M6 | Timeline del Evento | ⬜ Pendiente |
-| M7 | Servicios y Proveedores | ⬜ Pendiente |
-| M8 | Checklist de Servicios | ⬜ Pendiente |
-| M9 | Comanda del Chef | ⬜ Pendiente |
-| M10 | Check-in en Tiempo Real | ⬜ Pendiente |
-| M11 | Reportes y Analytics | ⬜ Pendiente |
+| M4 | Gestión de Mesas | ✅ Completo y testeado |
+| M5 | Plano Visual del Salón | ✅ Completo y testeado |
+| M6 | Timeline del Evento | ✅ Completo y testeado |
+| M7 | Servicios y Proveedores | ✅ Completo y testeado |
+| M8 | Checklist de Servicios | ✅ Completo y testeado |
+| M9 | Comanda del Chef | ✅ Completo y testeado |
+| M10 | Check-in en Tiempo Real | ✅ Completo y testeado |
+| M11 | Reportes y Analytics | ✅ Completo y testeado |
 
 ---
 

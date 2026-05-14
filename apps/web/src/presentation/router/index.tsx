@@ -9,6 +9,11 @@ import { MesasPage } from '../pages/mesas/MesasPage'
 import { PlanoPage } from '../pages/plano/PlanoPage'
 import { TimelinePage } from '../pages/timeline/TimelinePage'
 import { RsvpPage } from '../pages/rsvp/RsvpPage'
+import { CheckinPage } from '../pages/checkin/CheckinPage'
+import { ServiciosPage } from '../pages/servicios/ServiciosPage'
+import { ChecklistPage } from '../pages/checklist/ChecklistPage'
+import { ComandaPage } from '../pages/comanda/ComandaPage'
+import { ReportesPage } from '../pages/reportes/ReportesPage'
 
 function AuthCallbackPage() {
   const { role, isLoading } = useAuth()
@@ -31,24 +36,6 @@ function LoginPage() {
         <h1 className="text-2xl font-semibold text-slate-900">Planning Pro</h1>
         <p className="text-sm text-slate-400">Login — se implementa en M0 Fase 2</p>
       </div>
-    </div>
-  )
-}
-
-function CheckinPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-xl font-semibold text-slate-900">Check-in</h1>
-      <p className="text-sm text-slate-400 mt-1">M10 — Fase 3</p>
-    </div>
-  )
-}
-
-function ComandaPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-xl font-semibold text-slate-900">Comanda del Chef</h1>
-      <p className="text-sm text-slate-400 mt-1">M9 — Fase 4</p>
     </div>
   )
 }
@@ -131,10 +118,50 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: '/eventos/:eventoId/servicios',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        <ServiciosPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/checklist',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        <ChecklistPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/checkin',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        <CheckinPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/comanda',
     element: (
       <ProtectedRoute allowedRoles={['chef']}>
         <ComandaPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/comanda',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        <ComandaPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/eventos/:eventoId/reportes',
+    element: (
+      <ProtectedRoute allowedRoles={['organizador']}>
+        <ReportesPage />
       </ProtectedRoute>
     ),
   },

@@ -37,10 +37,12 @@ export interface ImportResult {
 export interface IInvitadoRepository {
   findByEvento(eventoId: string): Promise<Invitado[]>
   findById(id: string): Promise<Invitado | null>
+  findByQrToken(eventoId: string, token: string): Promise<Invitado | null>
   isDniTaken(eventoId: string, dni: string, excludeId?: string): Promise<boolean>
   create(data: CreateInvitadoData): Promise<Invitado>
   update(id: string, data: UpdateInvitadoData): Promise<Invitado>
   delete(id: string): Promise<void>
   importBatch(rows: CreateInvitadoData[]): Promise<ImportResult>
   generateQrToken(id: string): Promise<Invitado>
+  checkIn(id: string, acompanantesPresentes?: number): Promise<Invitado>
 }

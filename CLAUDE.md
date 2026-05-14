@@ -147,11 +147,11 @@ El QR se genera ÚNICAMENTE cuando el invitado confirma asistencia via formulari
 | M4 | Gestión de Mesas | ✅ Completo y testeado |
 | M5 | Plano Visual del Salón | ✅ Completo y testeado |
 | M6 | Timeline del Evento | ✅ Completo y testeado |
-| M7 | Servicios y Proveedores | ⬜ Pendiente |
-| M8 | Checklist de Servicios | ⬜ Pendiente |
-| M9 | Comanda del Chef | ⬜ Pendiente |
-| M10 | Check-in en Tiempo Real | ⬜ Pendiente |
-| M11 | Reportes y Analytics | ⬜ Pendiente |
+| M7 | Servicios y Proveedores | ✅ Completo y testeado |
+| M8 | Checklist de Servicios | ✅ Completo y testeado |
+| M9 | Comanda del Chef | ✅ Completo y testeado |
+| M10 | Check-in en Tiempo Real | ✅ Completo y testeado |
+| M11 | Reportes y Analytics | ✅ Completo y testeado |
 
 Actualizar el estado de cada módulo a medida que se completa:
 - ⬜ Pendiente

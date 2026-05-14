@@ -102,7 +102,6 @@ export class SupabaseInvitadoRepository implements IInvitadoRepository {
   }
 
   async generateQrToken(id: string): Promise<Invitado> {
-    // Generate a unique opaque token
     const array = new Uint8Array(24)
     crypto.getRandomValues(array)
     const token = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('')
@@ -110,6 +109,37 @@ export class SupabaseInvitadoRepository implements IInvitadoRepository {
     const { data, error } = await supabase
       .from(TABLE)
       .update({ qr_token: token, status: 'confirmado' })
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return toInvitado(data)
+  }
+
+  async findByQrToken(eventoId: string, token: string): Promise<Invitado | null> {
+    const { data, error } = await supabase
+      .from(TABLE)
+      .select('*')
+      .eq('evento_id', eventoId)
+      .eq('qr_token', token)
+      .maybeSingle()
+    if (error) throw error
+    return data ? toInvitado(data) : null
+  }
+
+  async checkIn(id: string, acompanantesPresentes?: number): Promise<Invitado> {
+    const now = new Date().toISOString()
+    const patch: Record<string, unknown> = {
+      status: 'checkin',
+      checkin_at: now,
+      qr_used_at: now,
+    }
+    if (acompanantesPresentes !== undefined) {
+      patch.acompanantes_presentes = acompanantesPresentes
+    }
+    const { data, error } = await supabase
+      .from(TABLE)
+      .update(patch)
       .eq('id', id)
       .select()
       .single()
