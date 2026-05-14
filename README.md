@@ -4,7 +4,8 @@ Plataforma SaaS + PWA para organizadores profesionales de eventos. Sistema opera
 
 > Evolución cloud-native de Planning Manager Desktop (Electron + SQLite, v0.11.0).  
 > Documentación completa del producto: [`PLANNING_PRO_MASTER_DOC.md`](./PLANNING_PRO_MASTER_DOC.md)  
-> Contrato de trabajo para agentes IA: [`CLAUDE.md`](./CLAUDE.md)
+> Contrato de trabajo para agentes IA: [`CLAUDE.md`](./CLAUDE.md)  
+> Checklist de deploy a producción: [`go-live.md`](./go-live.md)
 
 ---
 

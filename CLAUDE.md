@@ -10,7 +10,8 @@
 
 Es la evolución cloud-native de **Planning Manager Desktop** (Electron + SQLite, v0.11.0). El desktop validó el dominio. Planning Pro reescribe ese dominio sobre arquitectura moderna con 86 funcionalidades distribuidas en 12 módulos.
 
-Documento de referencia completo: `PLANNING_PRO_MASTER_DOC.md`
+Documento de referencia completo: `PLANNING_PRO_MASTER_DOC.md`  
+Checklist de deploy a producción: `go-live.md` (trabajo en curso — eliminar al completar)
 
 ---
 
