@@ -17,7 +17,9 @@
       "Bash(dir \"C:\\\\Equipo120424M\\\\Desktop\\\\Planning_Pro_Manager\")",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Bash(git check-ignore *)",
+      "Bash(git push *)"
     ]
   }
 }
